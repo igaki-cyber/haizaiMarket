@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 async function fetchItems(){
   try{
-    const res=await fetch(GAS_URL,{credentials:'omit'});
+    const res=await fetch(GAS_URL,{credentials:'omit',redirect:'follow'});
     if(!res.ok) throw new Error();
     const json=await res.json();
     if(json.error) throw new Error(json.error);
@@ -311,7 +311,7 @@ async function submit(){
   if(GAS_URL==='YOUR_GAS_URL_HERE'){await new Promise(r=>setTimeout(r,1200));showOK();return;}
   try{
     const p=new URLSearchParams({action:'submit',itemName:modalItem.品目名,itemCategory:modalItem.カテゴリ||'',name,contact,qty,date:date||'未定',comment});
-    const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit'});
+    const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
     const json=await res.json();
     if(json.success) showOK();
     else throw new Error(json.error||'送信に失敗しました');

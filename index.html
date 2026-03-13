@@ -315,7 +315,7 @@ async function submit(){
     const json=await res.json();
     if(json.success) showOK(json.stock);
     else throw new Error(json.error||'送信に失敗しました');
-  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='申し込む';showErr('送信に失敗しました。しばらく時間をおいて再度お試しください。');}
+  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='申し込む';showErr(e.message||'送信に失敗しました。しばらく時間をおいて再度お試しください。');}
 }
 
 function showOK(newStock){
@@ -325,7 +325,15 @@ function showOK(newStock){
     if(item) item.在庫数 = newStock;
     render();
   }
-  const btn=document.getElementById('btnSubmit');btn.style.display='none';document.getElementById('formNote').style.display='none';const m=document.getElementById('resultMsg');m.className='result-msg success';m.innerHTML='✅ 申し込みを受け付けました！<br>管理者より連絡をお待ちください。';
+  // ボタンを「完了」表示に（非表示にしない）
+  const btn=document.getElementById('btnSubmit');
+  btn.disabled=true;
+  btn.classList.remove('loading');
+  btn.querySelector('.btn-text').textContent='送信済み';
+  document.getElementById('formNote').style.display='none';
+  const m=document.getElementById('resultMsg');
+  m.className='result-msg success';
+  m.innerHTML='✅ 申し込みを受け付けました！<br>管理者より連絡をお待ちください。';
 }
 function showErr(t){const m=document.getElementById('resultMsg');m.className='result-msg error';m.textContent=t;}
 

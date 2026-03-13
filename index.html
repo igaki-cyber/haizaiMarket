@@ -77,10 +77,11 @@ main{max-width:1100px;margin:0 auto;padding:24px 16px 80px;position:relative;z-i
 .stock-ok .stock-dot{background:var(--green);}
 .stock-low .stock-dot{background:var(--warn);}
 .stock-none .stock-dot{background:#ccc;}
-.btn-want{flex:1;padding:9px 8px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;cursor:pointer;white-space:nowrap;transition:background .18s,transform .12s;}
+.btn-group{display:flex;gap:5px;flex:1;}
+.btn-want{flex:1;padding:9px 6px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:0.76rem;font-weight:700;letter-spacing:0.03em;cursor:pointer;white-space:nowrap;transition:background .18s,transform .12s;}
+.btn-borrow{background:var(--brown-mid);}
 .btn-want:hover{background:var(--accent-light);}
-.btn-want:active{transform:scale(0.96);}
-.btn-want:disabled{background:#ccc;cursor:not-allowed;}
+.btn-borrow:hover{background:var(--brown-light);}
 #lightbox{display:none;position:fixed;inset:0;z-index:800;background:rgba(8,4,1,0.95);flex-direction:column;padding:16px;backdrop-filter:blur(6px);}
 #lightbox.open{display:flex;}
 .lb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0;}
@@ -181,13 +182,14 @@ footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px
       <h2 class="modal-title">ほしい！を伝える</h2>
       <button class="modal-close" id="modalClose">✕</button>
     </div>
-    <p class="modal-item-name">対象品目：<strong id="modalItemName"></strong></p>
+    <p class="modal-item-name">対象品目：<strong id="modalItemName"></strong> <span id="modalType" style="font-size:0.78rem;padding:2px 10px;border-radius:12px;background:var(--brown-pale);color:var(--brown);font-weight:700;"></span></p>
     <div class="form-row">
       <div class="form-group"><label>お名前<span class="req">*</span></label><input type="text" id="fName" placeholder="山田 太郎" autocomplete="name"></div>
       <div class="form-group"><label>希望数量<span class="req">*</span></label><input type="number" id="fQty" min="1" value="1"></div>
     </div>
     <div class="form-group"><label>連絡先（メールまたはSNS ID）<span class="req">*</span></label><input type="text" id="fContact" placeholder="example@email.com または @username"></div>
     <div class="form-group"><label>ご希望の受け取り日</label><input type="date" id="fDate"></div>
+    <div class="form-group" id="returnDateGroup" style="display:none"><label>返却予定日</label><input type="date" id="fReturnDate"></div>
     <div class="form-group"><label>その他コメント</label><textarea id="fComment" placeholder="使い道や、その他ご質問などあればご記入ください"></textarea></div>
     <button class="btn-submit" id="btnSubmit"><div class="btn-spin"></div><span class="btn-text">申し込む</span></button>
     <div class="result-msg" id="resultMsg"></div>
@@ -269,8 +271,9 @@ function makeCard(item){
   const s=item.在庫数;
   const[cls,label]=s<=0?['stock-none','在庫なし']:s<=3?['stock-low',`残り${s}点`]:['stock-ok',`在庫${s}点`];
   const body=document.createElement('div');body.className='card-body';
-  body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span><button class="btn-want"${s<=0?' disabled':''}>ほしい！</button></div>`;
-  body.querySelector('.btn-want')?.addEventListener('click',()=>openModal(item));
+  body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span><div class="btn-group"${s<=0?' style="opacity:0.4;pointer-events:none"':''}><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div></div>`;
+  body.querySelector('.btn-get')?.addEventListener('click',()=>openModal(item,'ほしい'));
+  body.querySelector('.btn-borrow')?.addEventListener('click',()=>openModal(item,'借りたい'));
   card.appendChild(thumb);card.appendChild(body);return card;
 }
 
@@ -284,10 +287,14 @@ function renderLb(){
 }
 function closeLb(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 
-function openModal(item){
+function openModal(item, type){
   modalItem=item;
   document.getElementById('modalItemName').textContent=item.品目名;
-  ['fName','fContact','fComment'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modalType').textContent=type==='借りたい'?'🔄 借りたい':'✋ ほしい';
+  document.getElementById('modalType').dataset.type=type;
+  // 返却予定日は「借りたい」のみ表示
+  document.getElementById('returnDateGroup').style.display=type==='借りたい'?'':'none';
+  ['fName','fContact','fComment','fReturnDate'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fQty').value=1;document.getElementById('fDate').value='';
   document.getElementById('resultMsg').className='result-msg';document.getElementById('resultMsg').textContent='';
   const btn=document.getElementById('btnSubmit');btn.disabled=false;btn.classList.remove('loading');btn.style.display='';
@@ -303,14 +310,16 @@ async function submit(){
   const qty=document.getElementById('fQty').value;
   const date=document.getElementById('fDate').value;
   const comment=document.getElementById('fComment').value.trim();
+  const type=document.getElementById('modalType').dataset.type||'ほしい';
+  const returnDate=document.getElementById('fReturnDate').value;
   if(!name){showErr('お名前を入力してください');return;}
   if(!contact){showErr('連絡先を入力してください');return;}
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
   document.getElementById('resultMsg').className='result-msg';
-  if(GAS_URL==='YOUR_GAS_URL_HERE'){await new Promise(r=>setTimeout(r,1200));showOK();return;}
+  if(GAS_URL==='YOUR_GAS_URL_HERE'){await new Promise(r=>setTimeout(r,1200));showOK(undefined);return;}
   try{
-    const p=new URLSearchParams({action:'submit',itemName:modalItem.品目名,itemCategory:modalItem.カテゴリ||'',name,contact,qty,date:date||'未定',comment});
+    const p=new URLSearchParams({action:'submit',itemName:modalItem.品目名,itemCategory:modalItem.カテゴリ||'',name,contact,qty,date:date||'未定',comment,type,returnDate:returnDate||''});
     const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
     let json;
     try{ json=await res.json(); }catch(e){ throw new Error('送信に失敗しました。しばらく時間をおいて再度お試しください。'); }

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>廃材おわけします</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#f7f3ec;--cream-dark:#ede6d8;--brown-deep:#2e1f0f;--brown:#5c3d20;
+  --brown-mid:#8b5e35;--brown-light:#c4996a;--brown-pale:#e8d5bc;
+  --accent:#c0521a;--accent-light:#e8793a;--green-dark:#3a5a30;--green:#5a7a4a;
+  --green-pale:#ddeedd;--warn:#e07b00;--warn-pale:#fff3e0;
+  --text:#2e1f0f;--text-mid:#5c4030;--text-light:#8a6a50;--white:#fefcf8;
+  --shadow-sm:0 2px 8px rgba(46,31,15,0.08);--shadow-lg:0 8px 40px rgba(46,31,15,0.20);
+  --radius:14px;--radius-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(95deg,transparent,transparent 40px,rgba(139,94,53,0.018) 40px,rgba(139,94,53,0.018) 41px);pointer-events:none;z-index:0;}
+header{position:sticky;top:0;z-index:200;background:var(--brown-deep);padding:0 20px;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:60px;}
+.logo{display:flex;flex-direction:column;line-height:1.2;}
+.logo-main{font-family:'Shippori Mincho',serif;font-size:clamp(1rem,3.5vw,1.3rem);font-weight:700;color:var(--cream);letter-spacing:0.08em;}
+.logo-sub{font-size:0.62rem;color:var(--brown-light);letter-spacing:0.14em;margin-top:2px;}
+.hero{background:linear-gradient(135deg,var(--brown-deep) 0%,var(--brown) 55%,var(--brown-mid) 100%);padding:44px 20px 40px;text-align:center;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.hero h2{font-family:'Shippori Mincho',serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--cream);font-weight:700;letter-spacing:0.06em;margin-bottom:10px;position:relative;z-index:1;}
+.hero p{font-size:clamp(0.78rem,2.5vw,0.88rem);color:#e8d5bc;line-height:1.9;position:relative;z-index:1;}
+.filter-bar{background:var(--white);border-bottom:1px solid var(--brown-pale);padding:12px 20px;position:sticky;top:60px;z-index:150;box-shadow:var(--shadow-sm);}
+.filter-inner{max-width:1100px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.search-wrap{position:relative;flex:1;min-width:160px;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--brown-light);font-size:0.88rem;pointer-events:none;}
+#searchInput{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--brown-pale);border-radius:24px;font-family:'Noto Sans JP',sans-serif;font-size:0.86rem;background:var(--cream);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;}
+#searchInput:focus{border-color:var(--brown-mid);box-shadow:0 0 0 3px rgba(139,94,53,0.12);}
+#searchInput::placeholder{color:var(--brown-light);}
+.filter-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{padding:6px 13px;border-radius:20px;border:1.5px solid var(--brown-pale);background:var(--cream);color:var(--text-mid);font-family:'Noto Sans JP',sans-serif;font-size:0.76rem;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.chip:hover{border-color:var(--brown-mid);color:var(--brown);}
+.chip.active{background:var(--brown);border-color:var(--brown);color:var(--cream);}
+.chip.stock-chip.active{background:var(--green);border-color:var(--green);}
+.result-count{font-size:0.76rem;color:var(--text-light);margin-left:auto;white-space:nowrap;}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1;}
+#status{text-align:center;padding:80px 20px;color:var(--text-light);}
+.spinner{width:40px;height:40px;border:3px solid var(--brown-pale);border-top-color:var(--brown);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 18px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#status p{font-size:0.88rem;}
+.no-results{text-align:center;padding:60px 20px;color:var(--text-light);}
+.no-results .emoji{font-size:2.4rem;margin-bottom:12px;}
+#configBanner{background:#fff3cd;border:1.5px solid #ffc107;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:0.82rem;color:#856404;line-height:1.6;display:none;}
+#configBanner.show{display:block;}
+#configBanner code{background:rgba(0,0,0,0.08);padding:1px 5px;border-radius:3px;font-size:0.78rem;}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(196,153,106,0.2);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;animation:fadeUp .4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.card:nth-child(1){animation-delay:.04s;}.card:nth-child(2){animation-delay:.08s;}.card:nth-child(3){animation-delay:.12s;}.card:nth-child(4){animation-delay:.16s;}.card:nth-child(5){animation-delay:.20s;}.card:nth-child(6){animation-delay:.24s;}.card:nth-child(7){animation-delay:.28s;}.card:nth-child(8){animation-delay:.32s;}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
+.card-thumb{position:relative;aspect-ratio:4/3;background:var(--cream-dark);cursor:pointer;overflow:hidden;}
+.card-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;display:block;}
+.card:hover .card-thumb img{transform:scale(1.06);}
+.thumb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(46,31,15,0.5) 0%,transparent 55%);opacity:0;transition:opacity .25s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;}
+.card:hover .thumb-overlay{opacity:1;}
+.thumb-overlay span{color:#fff;font-size:0.76rem;letter-spacing:0.06em;background:rgba(255,255,255,0.18);padding:4px 12px;border-radius:20px;backdrop-filter:blur(4px);}
+.photo-badge{position:absolute;top:8px;right:8px;background:rgba(46,31,15,0.65);color:#fff;font-size:0.68rem;padding:3px 8px;border-radius:12px;backdrop-filter:blur(6px);}
+.no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--cream-dark);color:var(--brown-light);font-size:2.5rem;}
+.card-body{padding:13px 14px 15px;flex:1;display:flex;flex-direction:column;gap:7px;}
+.card-category{font-size:0.68rem;color:var(--brown-mid);letter-spacing:0.1em;font-weight:500;}
+.card-name{font-family:'Shippori Mincho',serif;font-size:1.02rem;font-weight:700;color:var(--brown-deep);line-height:1.45;}
+.card-desc{font-size:0.78rem;color:var(--text-mid);line-height:1.72;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.card-footer{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:7px;}
+.stock-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:20px;}
+.stock-ok{background:var(--green-pale);color:var(--green-dark);}
+.stock-low{background:var(--warn-pale);color:var(--warn);}
+.stock-none{background:#f0ece8;color:#aaa;}
+.stock-dot{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.stock-ok .stock-dot{background:var(--green);}
+.stock-low .stock-dot{background:var(--warn);}
+.stock-none .stock-dot{background:#ccc;}
+.btn-want{flex:1;padding:9px 8px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;cursor:pointer;white-space:nowrap;transition:background .18s,transform .12s;}
+.btn-want:hover{background:var(--accent-light);}
+.btn-want:active{transform:scale(0.96);}
+.btn-want:disabled{background:#ccc;cursor:not-allowed;}
+#lightbox{display:none;position:fixed;inset:0;z-index:800;background:rgba(8,4,1,0.95);flex-direction:column;padding:16px;backdrop-filter:blur(6px);}
+#lightbox.open{display:flex;}
+.lb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0;}
+.lb-title{font-family:'Shippori Mincho',serif;font-size:1rem;color:var(--cream);font-weight:700;}
+.lb-close{background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:1.3rem;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.lb-close:hover{background:rgba(255,255,255,0.22);}
+.lb-main{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;}
+#lbMainImg{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:1.5rem;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;backdrop-filter:blur(4px);}
+.lb-nav:hover{background:rgba(255,255,255,0.28);}
+.lb-nav.prev{left:4px;}.lb-nav.next{right:4px;}
+.lb-thumbs{display:flex;gap:8px;overflow-x:auto;padding:12px 0 0;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--brown-mid) transparent;}
+.lb-thumb{width:66px;height:66px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;opacity:0.5;transition:all .18s;flex-shrink:0;}
+.lb-thumb:hover{opacity:0.8;}
+.lb-thumb.active{border-color:var(--accent-light);opacity:1;}
+#modalOverlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(8,4,1,0.72);align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+#modalOverlay.open{display:flex;}
+@media(min-width:600px){#modalOverlay{align-items:center;}#modal{border-radius:var(--radius);max-width:520px;width:100%;}}
+#modal{background:var(--white);width:100%;border-radius:var(--radius) var(--radius) 0 0;max-height:92vh;overflow-y:auto;padding:26px 22px 30px;box-shadow:0 -8px 40px rgba(0,0,0,0.25);animation:slideUp .28s cubic-bezier(.34,1.4,.64,1);}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.modal-title{font-family:'Shippori Mincho',serif;font-size:1.15rem;font-weight:700;color:var(--brown-deep);line-height:1.4;}
+.modal-close{background:none;border:none;font-size:1.4rem;color:var(--text-light);cursor:pointer;padding:0 0 0 12px;line-height:1;}
+.modal-item-name{font-size:0.8rem;color:var(--text-light);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--brown-pale);}
+.modal-item-name strong{color:var(--brown);font-weight:700;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:0.78rem;font-weight:700;color:var(--brown);margin-bottom:4px;letter-spacing:0.03em;}
+.form-group label .req{color:var(--accent);margin-left:3px;}
+.form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--brown-pale);border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:0.86rem;color:var(--text);background:var(--cream);outline:none;transition:border-color .2s,box-shadow .2s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--brown-mid);box-shadow:0 0 0 3px rgba(139,94,53,0.1);}
+.form-group textarea{resize:vertical;min-height:78px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn-submit{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:0.94rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;margin-top:6px;transition:background .18s,transform .12s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-submit:hover:not(:disabled){background:var(--accent-light);}
+.btn-submit:active:not(:disabled){transform:scale(0.98);}
+.btn-submit:disabled{background:#ccc;cursor:not-allowed;}
+.btn-spin{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0;}
+.btn-submit.loading .btn-spin{display:block;}
+.result-msg{display:none;padding:14px 16px;border-radius:var(--radius-sm);margin-top:12px;font-size:0.86rem;line-height:1.6;text-align:center;}
+.result-msg.success{display:block;background:var(--green-pale);color:var(--green-dark);border:1px solid #b2d9b0;}
+.result-msg.error{display:block;background:#fde8e8;color:#a32020;border:1px solid #f5bcbc;}
+.form-note{font-size:0.7rem;color:var(--text-light);text-align:center;margin-top:8px;line-height:1.6;}
+footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px 20px;font-size:0.74rem;line-height:1.9;position:relative;z-index:1;}
+@media(max-width:600px){#grid{grid-template-columns:repeat(2,1fr);gap:12px;}.card-body{padding:10px 11px 12px;}.card-name{font-size:0.9rem;}.card-desc{font-size:0.74rem;}.form-row{grid-template-columns:1fr;}.lb-nav{display:none;}}
+@media(max-width:340px){#grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-main">🪵 廃材おわけします</span>
+      <span class="logo-sub">RECLAIMED MATERIALS · FREE TO GOOD HOME</span>
+    </div>
+  </div>
+</header>
+<div class="hero">
+  <h2>使える廃材、もらってください</h2>
+  <p>必要な方にお譲りします。<br>気になる品目があれば「ほしい！」からご連絡ください。</p>
+</div>
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="品目名・説明で検索…" autocomplete="off">
+    </div>
+    <div class="filter-chips" id="categoryChips"></div>
+    <button class="chip stock-chip" id="stockChip">在庫あり</button>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+</div>
+<main>
+  <div id="configBanner">
+    ⚠️ <strong>管理者へ：</strong> <code>GAS_URL</code> をGoogle Apps ScriptのデプロイURLに書き換えてください。（今はデモデータを表示しています）
+  </div>
+  <div id="status"><div class="spinner"></div><p>データを読み込んでいます…</p></div>
+  <div id="grid" style="display:none"></div>
+  <div class="no-results" id="noResults" style="display:none"><div class="emoji">🪵</div><p>条件に合う品目が見つかりませんでした</p></div>
+</main>
+<footer><p>お譲りは先着順・数量に限りがあります。<br>取りに来ていただける方を優先します。</p></footer>
+
+<div id="lightbox" role="dialog" aria-modal="true">
+  <div class="lb-header">
+    <span class="lb-title" id="lbTitle"></span>
+    <button class="lb-close" id="lbClose">✕</button>
+  </div>
+  <div class="lb-main">
+    <button class="lb-nav prev" id="lbPrev">‹</button>
+    <img id="lbMainImg" src="" alt="">
+    <button class="lb-nav next" id="lbNext">›</button>
+  </div>
+  <div class="lb-thumbs" id="lbThumbs"></div>
+</div>
+
+<div id="modalOverlay" role="dialog" aria-modal="true">
+  <div id="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">ほしい！を伝える</h2>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <p class="modal-item-name">対象品目：<strong id="modalItemName"></strong></p>
+    <div class="form-row">
+      <div class="form-group"><label>お名前<span class="req">*</span></label><input type="text" id="fName" placeholder="山田 太郎" autocomplete="name"></div>
+      <div class="form-group"><label>希望数量<span class="req">*</span></label><input type="number" id="fQty" min="1" value="1"></div>
+    </div>
+    <div class="form-group"><label>連絡先（メールまたはSNS ID）<span class="req">*</span></label><input type="text" id="fContact" placeholder="example@email.com または @username"></div>
+    <div class="form-group"><label>ご希望の受け取り日</label><input type="date" id="fDate"></div>
+    <div class="form-group"><label>その他コメント</label><textarea id="fComment" placeholder="使い道や、その他ご質問などあればご記入ください"></textarea></div>
+    <button class="btn-submit" id="btnSubmit"><div class="btn-spin"></div><span class="btn-text">申し込む</span></button>
+    <div class="result-msg" id="resultMsg"></div>
+    <p class="form-note" id="formNote">内容を確認して「申し込む」を押してください。</p>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  ★ 設定（ここを書き換えてください）
+// ================================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYzCDK27w57lTTaCA1gVyDkz41MH6NVSHqjdEqKu0hSXMh33--zIx3YvG2qqAjaEUO/exec';
+// ================================================================
+
+const DEMO=[
+  {品目名:'杉材 2×4',カテゴリ:'木材',説明:'長さ約180cmの杉の角材。DIYや棚の材料にどうぞ。目立つ傷はありません。',在庫数:8,images:['https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600','https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600']},
+  {品目名:'パイン集成材',カテゴリ:'木材',説明:'幅60cm×長さ120cm。テーブルトップや棚板に。表面はサンダー仕上げ済み。',在庫数:2,images:['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600']},
+  {品目名:'赤レンガ',カテゴリ:'石・土',説明:'解体で出た赤レンガ。花壇の縁どりや小道づくりに。多少欠けあり。',在庫数:50,images:['https://images.unsplash.com/photo-1587582345426-bf07f534e4e1?w=600','https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600']},
+  {品目名:'波板（ポリカ）',カテゴリ:'建材',説明:'透明ポリカ波板。長さ6尺×幅655mm。3枚セット。雨よけ屋根などに。',在庫数:0,images:['https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600']},
+  {品目名:'足場板（古材）',カテゴリ:'木材',説明:'古材の足場板。1枚あたり幅20cm×長さ210cm。アンティーク感あります。',在庫数:12,images:['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600','https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600','https://images.unsplash.com/photo-1587582345426-bf07f534e4e1?w=600']},
+  {品目名:'コンクリートブロック',カテゴリ:'石・土',説明:'標準サイズのコンクリートブロック。花壇の仕切りや重し台などに。',在庫数:30,images:['https://images.unsplash.com/photo-1587582345426-bf07f534e4e1?w=600']},
+  {品目名:'ガルバリウム鋼板',カテゴリ:'建材',説明:'波打ち加工済みの鋼板。長さ約2m。外壁や小屋の屋根に使えます。',在庫数:6,images:['https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600']},
+  {品目名:'丸太（径30cm程度）',カテゴリ:'木材',説明:'庭の切り株や飾り台として。重さがあるため軽トラ等でのお引き取りをお願いします。',在庫数:4,images:['https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600','https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600']},
+];
+
+let allItems=[],activeCategory='すべて',stockOnly=false,lbImages=[],lbIdx=0,modalItem=null;
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(GAS_URL==='YOUR_GAS_URL_HERE'){document.getElementById('configBanner').classList.add('show');init(DEMO);}
+  else fetchItems();
+  bindEvents();
+});
+
+async function fetchItems(){
+  try{
+    const res=await fetch(GAS_URL);
+    if(!res.ok) throw new Error();
+    const json=await res.json();
+    if(json.error) throw new Error(json.error);
+    init(json.items||[]);
+  }catch(e){document.getElementById('status').innerHTML='<p>データの読み込みに失敗しました。<br>GASのURLや公開設定をご確認ください。</p>';}
+}
+
+function init(items){allItems=items;document.getElementById('status').style.display='none';buildChips();render();}
+
+function buildChips(){
+  const cats=['すべて',...new Set(allItems.map(i=>i.カテゴリ).filter(Boolean))];
+  const wrap=document.getElementById('categoryChips');wrap.innerHTML='';
+  cats.forEach(cat=>{
+    const btn=document.createElement('button');btn.className='chip'+(cat===activeCategory?' active':'');btn.textContent=cat;
+    btn.addEventListener('click',()=>{activeCategory=cat;wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');render();});
+    wrap.appendChild(btn);
+  });
+}
+
+function render(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const filtered=allItems.filter(item=>{
+    if(activeCategory!=='すべて'&&item.カテゴリ!==activeCategory) return false;
+    if(stockOnly&&item.在庫数<=0) return false;
+    if(q&&!item.品目名.toLowerCase().includes(q)&&!(item.説明||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('resultCount').textContent=`${filtered.length} 件`;
+  const grid=document.getElementById('grid'),noRes=document.getElementById('noResults');
+  if(filtered.length===0){grid.style.display='none';noRes.style.display='block';}
+  else{noRes.style.display='none';grid.style.display='grid';grid.innerHTML='';filtered.forEach(item=>grid.appendChild(makeCard(item)));}
+}
+
+function makeCard(item){
+  const card=document.createElement('div');card.className='card';
+  const thumb=document.createElement('div');thumb.className='card-thumb';
+  if(item.images&&item.images.length>0){
+    const img=document.createElement('img');img.src=item.images[0];img.alt=item.品目名;img.loading='lazy';thumb.appendChild(img);
+    const ov=document.createElement('div');ov.className='thumb-overlay';ov.innerHTML='<span>📷 画像を見る</span>';thumb.appendChild(ov);
+    if(item.images.length>1){const b=document.createElement('div');b.className='photo-badge';b.textContent='📷 '+item.images.length;thumb.appendChild(b);}
+    thumb.addEventListener('click',()=>openLb(item));
+  }else{thumb.innerHTML='<div class="no-img">🪵</div>';}
+  const s=item.在庫数;
+  const[cls,label]=s<=0?['stock-none','在庫なし']:s<=3?['stock-low',`残り${s}点`]:['stock-ok',`在庫${s}点`];
+  const body=document.createElement('div');body.className='card-body';
+  body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span><button class="btn-want"${s<=0?' disabled':''}>ほしい！</button></div>`;
+  body.querySelector('.btn-want')?.addEventListener('click',()=>openModal(item));
+  card.appendChild(thumb);card.appendChild(body);return card;
+}
+
+function openLb(item){lbImages=item.images;lbIdx=0;document.getElementById('lbTitle').textContent=item.品目名;renderLb();document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function renderLb(){
+  document.getElementById('lbMainImg').src=lbImages[lbIdx];
+  const wrap=document.getElementById('lbThumbs');wrap.innerHTML='';
+  lbImages.forEach((src,i)=>{const img=document.createElement('img');img.src=src;img.className='lb-thumb'+(i===lbIdx?' active':'');img.addEventListener('click',()=>{lbIdx=i;renderLb();});wrap.appendChild(img);});
+  document.getElementById('lbPrev').style.display=lbImages.length>1?'':'none';
+  document.getElementById('lbNext').style.display=lbImages.length>1?'':'none';
+}
+function closeLb(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+
+function openModal(item){
+  modalItem=item;
+  document.getElementById('modalItemName').textContent=item.品目名;
+  ['fName','fContact','fComment'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fQty').value=1;document.getElementById('fDate').value='';
+  document.getElementById('resultMsg').className='result-msg';document.getElementById('resultMsg').textContent='';
+  const btn=document.getElementById('btnSubmit');btn.disabled=false;btn.classList.remove('loading');btn.style.display='';
+  btn.querySelector('.btn-text').textContent='申し込む';
+  document.getElementById('formNote').style.display='';
+  document.getElementById('modalOverlay').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+
+async function submit(){
+  const name=document.getElementById('fName').value.trim();
+  const contact=document.getElementById('fContact').value.trim();
+  const qty=document.getElementById('fQty').value;
+  const date=document.getElementById('fDate').value;
+  const comment=document.getElementById('fComment').value.trim();
+  if(!name){showErr('お名前を入力してください');return;}
+  if(!contact){showErr('連絡先を入力してください');return;}
+  const btn=document.getElementById('btnSubmit');
+  btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
+  document.getElementById('resultMsg').className='result-msg';
+  if(GAS_URL==='YOUR_GAS_URL_HERE'){await new Promise(r=>setTimeout(r,1200));showOK();return;}
+  try{
+    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({itemName:modalItem.品目名,itemCategory:modalItem.カテゴリ||'',name,contact,qty,date:date||'未定',comment})});
+    const json=await res.json();
+    if(json.success) showOK();
+    else throw new Error(json.error||'送信に失敗しました');
+  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='申し込む';showErr('送信に失敗しました。しばらく時間をおいて再度お試しください。');}
+}
+
+function showOK(){const btn=document.getElementById('btnSubmit');btn.style.display='none';document.getElementById('formNote').style.display='none';const m=document.getElementById('resultMsg');m.className='result-msg success';m.innerHTML='✅ 申し込みを受け付けました！<br>管理者より連絡をお待ちください。';}
+function showErr(t){const m=document.getElementById('resultMsg');m.className='result-msg error';m.textContent=t;}
+
+function bindEvents(){
+  document.getElementById('searchInput').addEventListener('input',render);
+  document.getElementById('stockChip').addEventListener('click',()=>{stockOnly=!stockOnly;document.getElementById('stockChip').classList.toggle('active',stockOnly);render();});
+  document.getElementById('lbClose').addEventListener('click',closeLb);
+  document.getElementById('lbPrev').addEventListener('click',()=>{lbIdx=(lbIdx-1+lbImages.length)%lbImages.length;renderLb();});
+  document.getElementById('lbNext').addEventListener('click',()=>{lbIdx=(lbIdx+1)%lbImages.length;renderLb();});
+  document.getElementById('lightbox').addEventListener('click',e=>{if(e.target===document.getElementById('lightbox'))closeLb();});
+  document.getElementById('modalClose').addEventListener('click',closeModal);
+  document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();});
+  document.getElementById('btnSubmit').addEventListener('click',submit);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){closeLb();closeModal();}
+    if(document.getElementById('lightbox').classList.contains('open')){
+      if(e.key==='ArrowLeft'){lbIdx=(lbIdx-1+lbImages.length)%lbImages.length;renderLb();}
+      if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImages.length;renderLb();}
+    }
+  });
+}
+</script>
+</body>
+</html>

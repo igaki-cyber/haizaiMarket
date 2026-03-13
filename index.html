@@ -312,10 +312,11 @@ async function submit(){
   try{
     const p=new URLSearchParams({action:'submit',itemName:modalItem.品目名,itemCategory:modalItem.カテゴリ||'',name,contact,qty,date:date||'未定',comment});
     const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
-    const json=await res.json();
+    let json;
+    try{ json=await res.json(); }catch(e){ throw new Error('送信に失敗しました。しばらく時間をおいて再度お試しください。'); }
     if(json.success) showOK(json.stock);
     else throw new Error(json.error||'送信に失敗しました');
-  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='申し込む';showErr(e.message||'送信に失敗しました。しばらく時間をおいて再度お試しください。');}
+  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='申し込む';showErr(e.message);}
 }
 
 function showOK(newStock){

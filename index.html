@@ -67,7 +67,10 @@ main{max-width:1100px;margin:0 auto;padding:24px 16px 80px;position:relative;z-i
 .card-body{padding:13px 14px 15px;flex:1;display:flex;flex-direction:column;gap:7px;}
 .card-category{font-size:0.68rem;color:var(--brown-mid);letter-spacing:0.1em;font-weight:500;}
 .card-name{font-family:'Shippori Mincho',serif;font-size:1.02rem;font-weight:700;color:var(--brown-deep);line-height:1.45;}
-.card-desc{font-size:0.78rem;color:var(--text-mid);line-height:1.72;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.card-desc{font-size:0.78rem;color:var(--text-mid);line-height:1.72;flex:1;cursor:pointer;}
+.card-desc.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.card-desc.expanded::after{content:' 閉じる';font-size:0.72rem;color:var(--brown-mid);font-weight:700;}
+.card-desc.clamped::after{content:' …もっと見る';font-size:0.72rem;color:var(--brown-mid);font-weight:700;}
 .card-footer{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:7px;}
 .stock-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:20px;}
 .stock-ok{background:var(--green-pale);color:var(--green-dark);}
@@ -271,9 +274,12 @@ function makeCard(item){
   const s=item.在庫数;
   const[cls,label]=s<=0?['stock-none','在庫なし']:s<=3?['stock-low',`残り${s}点`]:['stock-ok',`在庫${s}点`];
   const body=document.createElement('div');body.className='card-body';
-  body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span><div class="btn-group"${s<=0?' style="opacity:0.4;pointer-events:none"':''}><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div></div>`;
+  body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc clamped">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span><div class="btn-group"${s<=0?' style="opacity:0.4;pointer-events:none"':''}><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div></div>`;
   body.querySelector('.btn-get')?.addEventListener('click',()=>openModal(item,'ほしい'));
   body.querySelector('.btn-borrow')?.addEventListener('click',()=>openModal(item,'借りたい'));
+  body.querySelector('.card-desc')?.addEventListener('click',function(){
+  this.classList.toggle('clamped');this.classList.toggle('expanded');
+});
   card.appendChild(thumb);card.appendChild(body);return card;
 }
 

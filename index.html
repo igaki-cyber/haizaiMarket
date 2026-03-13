@@ -139,6 +139,7 @@ footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px
       <span class="logo-main">🪵 廃材Marketテスト版</span>
       <span class="logo-sub">r井垣組ソノタワークス</span>
     </div>
+    <button id="btnOffer" style="margin-left:auto;padding:5px 12px;background:transparent;color:var(--brown-light);border:1px solid var(--brown-mid);border-radius:20px;font-family:'Noto Sans JP',sans-serif;font-size:0.72rem;font-weight:500;cursor:pointer;white-space:nowrap;">＋ 出品する</button>
   </div>
 </header>
 <div class="hero">
@@ -199,7 +200,24 @@ footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px
     <p class="form-note" id="formNote">内容を確認して「申し込む」を押してください。</p>
   </div>
 </div>
-
+<div id="offerOverlay" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(8,4,1,0.72);align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);">
+  <div id="offerModal" style="background:var(--white);width:100%;border-radius:var(--radius) var(--radius) 0 0;max-height:92vh;overflow-y:auto;padding:26px 22px 30px;box-shadow:0 -8px 40px rgba(0,0,0,0.25);animation:slideUp .28s cubic-bezier(.34,1.4,.64,1);">
+    <div class="modal-header">
+      <h2 class="modal-title">出品する</h2>
+      <button onclick="document.getElementById('offerOverlay').style.display='none';document.body.style.overflow='';" style="background:none;border:none;font-size:1.4rem;color:var(--text-light);cursor:pointer;padding:0 0 0 12px;">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>品目名<span class="req">*</span></label><input type="text" id="oName" placeholder="杉材 2×4"></div>
+      <div class="form-group"><label>カテゴリ</label><input type="text" id="oCategory" placeholder="木材・石・土など"></div>
+    </div>
+    <div class="form-group"><label>説明</label><textarea id="oDesc" placeholder="サイズ・状態・数量など"></textarea></div>
+    <div class="form-group"><label>数量</label><input type="number" id="oQty" min="1" value="1"></div>
+    <div class="form-group"><label>連絡先<span class="req">*</span></label><input type="text" id="oContact" placeholder="example@email.com または @username"></div>
+    <button class="btn-submit" id="btnOfferSubmit"><div class="btn-spin"></div><span class="btn-text">出品を申請する</span></button>
+    <div class="result-msg" id="offerResultMsg"></div>
+    <p class="form-note">内容を確認して送信してください。管理者が確認後、掲載します。</p>
+  </div>
+</div>
 <script>
 // ================================================================
 //  ★ 設定（ここを書き換えてください）
@@ -371,6 +389,32 @@ function bindEvents(){
       if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImages.length;renderLb();}
     }
   });
+document.getElementById('btnOffer').addEventListener('click',()=>{
+  ['oName','oCategory','oDesc','oContact'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('oQty').value=1;
+  document.getElementById('offerResultMsg').className='result-msg';
+  document.getElementById('btnOfferSubmit').disabled=false;
+  document.getElementById('btnOfferSubmit').querySelector('.btn-text').textContent='出品を申請する';
+  document.getElementById('offerOverlay').style.display='flex';
+  document.body.style.overflow='hidden';
+});
+document.getElementById('offerOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('offerOverlay')){document.getElementById('offerOverlay').style.display='none';document.body.style.overflow='';}});
+document.getElementById('btnOfferSubmit').addEventListener('click', async()=>{
+  const name=document.getElementById('oName').value.trim();
+  const contact=document.getElementById('oContact').value.trim();
+  if(!name){const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent='品目名を入力してください';return;}
+  if(!contact){const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent='連絡先を入力してください';return;}
+  const btn=document.getElementById('btnOfferSubmit');
+  btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
+  try{
+    const p=new URLSearchParams({action:'offer',itemName:name,itemCategory:document.getElementById('oCategory').value.trim(),desc:document.getElementById('oDesc').value.trim(),qty:document.getElementById('oQty').value,contact});
+    const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
+    const json=await res.json();
+    btn.classList.remove('loading');
+    if(json.success){btn.disabled=true;btn.querySelector('.btn-text').textContent='送信済み';const m=document.getElementById('offerResultMsg');m.className='result-msg success';m.innerHTML='✅ 申請を受け付けました！<br>管理者が確認後、掲載します。';}
+    else throw new Error(json.error||'送信に失敗しました');
+  }catch(e){btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.btn-text').textContent='出品を申請する';const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent=e.message;}
+});
 }
 </script>
 </body>

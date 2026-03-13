@@ -212,7 +212,9 @@ footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px
     </div>
     <div class="form-group"><label>説明</label><textarea id="oDesc" placeholder="サイズ・状態・数量など"></textarea></div>
     <div class="form-group"><label>数量</label><input type="number" id="oQty" min="1" value="1"></div>
+    <div class="form-group"><label>お名前<span class="req">*</span></label><input type="text" id="oName2" placeholder="山田 太郎"></div>
     <div class="form-group"><label>連絡先<span class="req">*</span></label><input type="text" id="oContact" placeholder="example@email.com または @username"></div>
+    <div class="form-group"><label>自由記述</label><textarea id="oFree" placeholder="その他、伝えたいことがあればご記入ください"></textarea></div>
     <button class="btn-submit" id="btnOfferSubmit"><div class="btn-spin"></div><span class="btn-text">出品を申請する</span></button>
     <div class="result-msg" id="offerResultMsg"></div>
     <p class="form-note">内容を確認して送信してください。管理者が確認後、掲載します。</p>
@@ -404,10 +406,12 @@ document.getElementById('btnOfferSubmit').addEventListener('click', async()=>{
   const contact=document.getElementById('oContact').value.trim();
   if(!name){const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent='品目名を入力してください';return;}
   if(!contact){const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent='連絡先を入力してください';return;}
+  const oname=document.getElementById('oName2').value.trim();
+if(!oname){const m=document.getElementById('offerResultMsg');m.className='result-msg error';m.textContent='お名前を入力してください';return;}
   const btn=document.getElementById('btnOfferSubmit');
   btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
   try{
-    const p=new URLSearchParams({action:'offer',itemName:name,itemCategory:document.getElementById('oCategory').value.trim(),desc:document.getElementById('oDesc').value.trim(),qty:document.getElementById('oQty').value,contact});
+    const p=new URLSearchParams({action:'offer',itemName:name,itemCategory:document.getElementById('oCategory').value.trim(),desc:document.getElementById('oDesc').value.trim(),free:document.getElementById('oFree').value.trim(),qty:document.getElementById('oQty').value,contact});
     const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
     const json=await res.json();
     btn.classList.remove('loading');

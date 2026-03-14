@@ -295,6 +295,12 @@ function makeCard(item){
     const img=document.createElement('img');img.src=item.images[0];img.alt=item.品目名;img.loading='lazy';thumb.appendChild(img);
     const ov=document.createElement('div');ov.className='thumb-overlay';ov.innerHTML='<span>📷 画像を見る</span>';thumb.appendChild(ov);
     if(item.images.length>1){const b=document.createElement('div');b.className='photo-badge';b.textContent='📷 '+item.images.length;thumb.appendChild(b);}
+    if((item.説明||'').startsWith('新着')){
+  const badge=document.createElement('div');
+  badge.style.cssText='position:absolute;top:8px;left:8px;background:var(--accent);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:0.06em;';
+  badge.textContent='🆕 新着';
+  thumb.appendChild(badge);
+}
     thumb.addEventListener('click',()=>openLb(item));
   }else{thumb.innerHTML='<div class="no-img">🪵</div>';}
   const s=item.在庫数;

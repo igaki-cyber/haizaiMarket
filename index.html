@@ -283,8 +283,8 @@ function render(){
     return true;
   });
   filtered.sort((a,b)=>{
-  const aNew=(a.説明||'').startsWith('新着');
-  const bNew=(b.説明||'').startsWith('新着');
+  const aNew = a.登録日 && (new Date()-new Date(a.登録日.replace(/\//g,'-')))<14*24*60*60*1000;
+  const bNew = b.登録日 && (new Date()-new Date(b.登録日.replace(/\//g,'-')))<14*24*60*60*1000;
   return aNew===bNew?0:aNew?-1:1;
 });
   document.getElementById('resultCount').textContent=`${filtered.length} 件`;
@@ -300,7 +300,9 @@ function makeCard(item){
     const img=document.createElement('img');img.src=item.images[0];img.alt=item.品目名;img.loading='lazy';thumb.appendChild(img);
     const ov=document.createElement('div');ov.className='thumb-overlay';ov.innerHTML='<span>📷 画像を見る</span>';thumb.appendChild(ov);
     if(item.images.length>1){const b=document.createElement('div');b.className='photo-badge';b.textContent='📷 '+item.images.length;thumb.appendChild(b);}
-    if((item.説明||'').startsWith('新着')){
+    const regDate = item.登録日 ? new Date(item.登録日.replace(/\//g,'-')) : null;
+const isNew = regDate && (new Date() - regDate) < 14*24*60*60*1000;
+if(isNew){
   const badge=document.createElement('div');
   badge.style.cssText='position:absolute;top:8px;left:8px;background:var(--accent);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:0.06em;';
   badge.textContent='新着';

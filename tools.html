@@ -300,7 +300,8 @@ function openDetail(tool) {
     } else {
       const p = document.createElement('p');
       p.className = 'block-text';
-      p.textContent = block;
+      p.className = 'block-text';
+      p.innerHTML = parseInline(block);
       body.appendChild(p);
     }
   });
@@ -319,6 +320,16 @@ function toYoutubeEmbed(url) {
   const m = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
   return m ? `https://www.youtube.com/embed/${m[1]}` : url;
 }
+
+function parseInline(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') // XSS対策
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')                 // **太字**
+    .replace(/==(.+?)==/g,'<span style="color:var(--accent)">$1</span>') // ==色付き==
+    .replace(/\[(.+?)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">$1</a>') // [テキスト](URL)
+    .replace(/\n/g,'<br>');                                           // 改行
+}
+  
 function toDriveUrl(url) {
   const m = url.match(/[?&]id=([^&]+)/);
   if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];

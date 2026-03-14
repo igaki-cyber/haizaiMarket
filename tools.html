@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>道具の使い方 | ソノタワークス</title>
+<meta property="og:title" content="道具の使い方 | ソノタワークス">
+<meta property="og:description" content="廃材を活かすための道具の使い方を解説します。">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#f7f3ec;--cream-dark:#ede6d8;--brown-deep:#2e1f0f;--brown:#5c3d20;
+  --brown-mid:#8b5e35;--brown-light:#c4996a;--brown-pale:#e8d5bc;
+  --accent:#c0521a;--accent-light:#e8793a;--green-dark:#3a5a30;--green:#5a7a4a;
+  --green-pale:#ddeedd;--text:#2e1f0f;--text-mid:#5c4030;--text-light:#8a6a50;--white:#fefcf8;
+  --shadow-sm:0 2px 8px rgba(46,31,15,0.08);--shadow-lg:0 8px 40px rgba(46,31,15,0.20);
+  --radius:14px;--radius-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(95deg,transparent,transparent 40px,rgba(139,94,53,0.018) 40px,rgba(139,94,53,0.018) 41px);pointer-events:none;z-index:0;}
+
+/* ヘッダー */
+header{position:sticky;top:0;z-index:200;background:var(--brown-deep);padding:0 20px;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:60px;gap:16px;}
+.logo{display:flex;flex-direction:column;line-height:1.2;text-decoration:none;}
+.logo-main{font-family:'Shippori Mincho',serif;font-size:clamp(1rem,3.5vw,1.3rem);font-weight:700;color:var(--cream);letter-spacing:0.08em;}
+.logo-sub{font-size:0.62rem;color:var(--brown-light);letter-spacing:0.14em;margin-top:2px;}
+.nav-links{margin-left:auto;display:flex;gap:8px;}
+.nav-link{padding:5px 14px;border-radius:20px;font-size:0.76rem;font-weight:500;text-decoration:none;transition:all .18s;white-space:nowrap;}
+.nav-link.current{background:var(--accent);color:#fff;}
+.nav-link.other{color:var(--brown-light);border:1px solid var(--brown-mid);}
+.nav-link.other:hover{color:var(--cream);}
+
+/* ヒーロー */
+.hero{background:linear-gradient(135deg,var(--brown-deep) 0%,var(--brown) 55%,var(--brown-mid) 100%);padding:44px 20px 40px;text-align:center;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.hero h2{font-family:'Shippori Mincho',serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--cream);font-weight:700;letter-spacing:0.06em;margin-bottom:10px;position:relative;z-index:1;}
+.hero p{font-size:clamp(0.78rem,2.5vw,0.88rem);color:#e8d5bc;line-height:1.9;position:relative;z-index:1;}
+
+/* フィルターバー */
+.filter-bar{background:var(--white);border-bottom:1px solid var(--brown-pale);padding:12px 20px;position:sticky;top:60px;z-index:150;box-shadow:var(--shadow-sm);}
+.filter-inner{max-width:1100px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.search-wrap{position:relative;flex:1;min-width:160px;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--brown-light);font-size:0.88rem;pointer-events:none;}
+#searchInput{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--brown-pale);border-radius:24px;font-family:'Noto Sans JP',sans-serif;font-size:0.86rem;background:var(--cream);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;}
+#searchInput:focus{border-color:var(--brown-mid);box-shadow:0 0 0 3px rgba(139,94,53,0.12);}
+#searchInput::placeholder{color:var(--brown-light);}
+.filter-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{padding:6px 13px;border-radius:20px;border:1.5px solid var(--brown-pale);background:var(--cream);color:var(--text-mid);font-family:'Noto Sans JP',sans-serif;font-size:0.76rem;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.chip:hover{border-color:var(--brown-mid);color:var(--brown);}
+.chip.active{background:var(--brown);border-color:var(--brown);color:var(--cream);}
+.result-count{font-size:0.76rem;color:var(--text-light);margin-left:auto;white-space:nowrap;}
+
+/* メイン */
+main{max-width:1100px;margin:0 auto;padding:24px 16px 80px;position:relative;z-index:1;}
+#status{text-align:center;padding:80px 20px;color:var(--text-light);}
+.spinner{width:40px;height:40px;border:3px solid var(--brown-pale);border-top-color:var(--brown);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 18px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.no-results{text-align:center;padding:60px 20px;color:var(--text-light);}
+.no-results .emoji{font-size:2.4rem;margin-bottom:12px;}
+
+/* グリッド */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(196,153,106,0.2);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;animation:fadeUp .4s ease both;cursor:pointer;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.card:nth-child(1){animation-delay:.04s;}.card:nth-child(2){animation-delay:.08s;}.card:nth-child(3){animation-delay:.12s;}.card:nth-child(4){animation-delay:.16s;}.card:nth-child(5){animation-delay:.20s;}.card:nth-child(6){animation-delay:.24s;}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
+.card-thumb{position:relative;aspect-ratio:4/3;background:var(--cream-dark);overflow:hidden;}
+.card-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;display:block;}
+.card:hover .card-thumb img{transform:scale(1.06);}
+.no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--cream-dark);color:var(--brown-light);font-size:2.5rem;}
+.card-body{padding:13px 14px 15px;flex:1;display:flex;flex-direction:column;gap:7px;}
+.card-category{font-size:0.68rem;color:var(--brown-mid);letter-spacing:0.1em;font-weight:500;}
+.card-name{font-family:'Shippori Mincho',serif;font-size:1.02rem;font-weight:700;color:var(--brown-deep);line-height:1.45;}
+.card-desc{font-size:0.78rem;color:var(--text-mid);line-height:1.72;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.card-footer{margin-top:4px;}
+.card-read-more{font-size:0.74rem;color:var(--accent);font-weight:700;}
+
+/* 詳細モーダル */
+#detailOverlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(8,4,1,0.72);align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px;}
+#detailOverlay.open{display:flex;}
+#detailModal{background:var(--white);width:100%;max-width:680px;border-radius:var(--radius);max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .28s cubic-bezier(.34,1.4,.64,1);}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.detail-header{position:sticky;top:0;background:var(--white);display:flex;justify-content:space-between;align-items:center;padding:18px 22px 14px;border-bottom:1px solid var(--brown-pale);z-index:10;}
+.detail-title{font-family:'Shippori Mincho',serif;font-size:1.2rem;font-weight:700;color:var(--brown-deep);}
+.detail-category{font-size:0.7rem;color:var(--brown-mid);margin-top:2px;letter-spacing:0.08em;}
+.detail-close{background:none;border:none;font-size:1.4rem;color:var(--text-light);cursor:pointer;padding:0 0 0 12px;line-height:1;flex-shrink:0;}
+.detail-body{padding:24px 22px 32px;display:flex;flex-direction:column;gap:20px;}
+
+/* コンテンツブロック */
+.block-text{font-size:0.9rem;line-height:1.9;color:var(--text-mid);white-space:pre-wrap;}
+.block-image{width:100%;border-radius:var(--radius-sm);overflow:hidden;}
+.block-image img{width:100%;display:block;object-fit:cover;max-height:420px;}
+.block-video{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:#000;}
+.block-video iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+
+footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px 20px;font-size:0.74rem;line-height:1.9;position:relative;z-index:1;}
+
+@media(max-width:600px){
+  #grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .card-body{padding:10px 11px 12px;}
+  .card-name{font-size:0.9rem;}
+  #detailOverlay{padding:0;align-items:flex-end;}
+  #detailModal{border-radius:var(--radius) var(--radius) 0 0;max-height:94vh;}
+  .nav-links{gap:5px;}
+}
+@media(max-width:340px){#grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-main">🪵 廃材Marketテスト版</span>
+      <span class="logo-sub">ソノタワークス</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link other">あげます・貸します</a>
+      <a href="tools.html" class="nav-link current">道具の使い方</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <h2>道具の使い方</h2>
+  <p>廃材を活かすための道具と技術を紹介します。</p>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="道具名・説明で検索…" autocomplete="off">
+    </div>
+    <div class="filter-chips" id="categoryChips"></div>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+</div>
+
+<main>
+  <div id="status"><div class="spinner"></div><p>データを読み込んでいます…</p></div>
+  <div id="grid" style="display:none"></div>
+  <div class="no-results" id="noResults" style="display:none"><div class="emoji">🔧</div><p>条件に合う道具が見つかりませんでした</p></div>
+</main>
+
+<footer><p>このサイトは研究目的の実験版です</p></footer>
+
+<!-- 詳細モーダル -->
+<div id="detailOverlay">
+  <div id="detailModal">
+    <div class="detail-header">
+      <div>
+        <div class="detail-title" id="detailTitle"></div>
+        <div class="detail-category" id="detailCategory"></div>
+      </div>
+      <button class="detail-close" id="detailClose">✕</button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYzCDK27w57lTTaCA1gVyDkz41MH6NVSHqjdEqKu0hSXMh33--zIx3YvG2qqAjaEUO/exec';
+
+// デモデータ
+const DEMO = [
+  {
+    タイトル:'丸ノコ', カテゴリ:'電動工具',
+    サムネイル:'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600',
+    段落:['丸ノコは木材を直線にカットするための電動工具です。正しく使えば作業効率が大幅に上がります。','https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800','刃の深さは切る材料の厚さ＋3mm程度に設定しましょう。定規（ガイド）を使うことで真っ直ぐな切断ができます。','https://www.youtube.com/watch?v=dQw4w9WgXcQ','切断時は必ずゴーグルと手袋を着用してください。']
+  },
+  {
+    タイトル:'インパクトドライバー', カテゴリ:'電動工具',
+    サムネイル:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',
+    段落:['インパクトドライバーはネジを締めたり緩めたりするための道具です。通常のドライバーより強力で、木材への固定作業に最適です。','https://images.unsplash.com/photo-1587582345426-bf07f534e4e1?w=800','ビットの種類を間違えるとネジ頭を舐めてしまいます。プラスのサイズはNo.1・2・3があり、一般的な木ネジはNo.2を使います。']
+  },
+  {
+    タイトル:'水平器', カテゴリ:'計測工具',
+    サムネイル:'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600',
+    段落:['水平器は面が水平・垂直になっているかを確認する道具です。棚や柱を取り付ける際に必ず使いましょう。','気泡が中央に来れば水平（または垂直）です。スマホアプリでも代用できますが、精度は本物の方が高いです。']
+  },
+];
+
+let allTools = [], activeCategory = 'すべて';
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchTools();
+  document.getElementById('searchInput').addEventListener('input', render);
+  document.getElementById('detailClose').addEventListener('click', closeDetail);
+  document.getElementById('detailOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('detailOverlay')) closeDetail();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+});
+
+async function fetchTools() {
+  try {
+    const res = await fetch(GAS_URL + '?action=getTools', { credentials: 'omit', redirect: 'follow' });
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    const tools = json.tools || [];
+    if (tools.length === 0) throw new Error('empty');
+    init(tools);
+  } catch(e) {
+    // GASにデータがなければデモ表示
+    init(DEMO);
+  }
+}
+
+function init(tools) {
+  allTools = tools;
+  document.getElementById('status').style.display = 'none';
+  buildChips();
+  render();
+}
+
+function buildChips() {
+  const cats = ['すべて', ...new Set(allTools.map(t => t.カテゴリ).filter(Boolean))];
+  const wrap = document.getElementById('categoryChips');
+  wrap.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      activeCategory = cat;
+      wrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function render() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const filtered = allTools.filter(t => {
+    if (activeCategory !== 'すべて' && t.カテゴリ !== activeCategory) return false;
+    if (q && !t.タイトル.toLowerCase().includes(q) && !(t.説明文 || '').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('resultCount').textContent = `${filtered.length} 件`;
+  const grid = document.getElementById('grid'), noRes = document.getElementById('noResults');
+  if (filtered.length === 0) { grid.style.display = 'none'; noRes.style.display = 'block'; }
+  else { noRes.style.display = 'none'; grid.style.display = 'grid'; grid.innerHTML = ''; filtered.forEach(t => grid.appendChild(makeCard(t))); }
+}
+
+function makeCard(tool) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  // サムネイル
+  const thumb = document.createElement('div');
+  thumb.className = 'card-thumb';
+  if (tool.サムネイル) {
+    const img = document.createElement('img');
+    img.src = toDriveUrl(tool.サムネイル);
+    img.alt = tool.タイトル;
+    img.loading = 'lazy';
+    thumb.appendChild(img);
+  } else {
+    thumb.innerHTML = '<div class="no-img">🔧</div>';
+  }
+  // テキスト最初の段落を説明として使う
+  const firstText = (tool.段落 || []).find(b => !isUrl(b)) || '';
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  body.innerHTML = `
+    ${tool.カテゴリ ? `<div class="card-category">${tool.カテゴリ}</div>` : ''}
+    <div class="card-name">${tool.タイトル}</div>
+    ${firstText ? `<div class="card-desc">${firstText}</div>` : ''}
+    <div class="card-footer"><span class="card-read-more">→ 詳しく見る</span></div>
+  `;
+  card.appendChild(thumb);
+  card.appendChild(body);
+  card.addEventListener('click', () => openDetail(tool));
+  return card;
+}
+
+function openDetail(tool) {
+  document.getElementById('detailTitle').textContent = tool.タイトル;
+  document.getElementById('detailCategory').textContent = tool.カテゴリ || '';
+  const body = document.getElementById('detailBody');
+  body.innerHTML = '';
+  (tool.段落 || []).forEach(block => {
+    if (!block.trim()) return;
+    if (isYoutube(block)) {
+      const div = document.createElement('div');
+      div.className = 'block-video';
+      div.innerHTML = `<iframe src="${toYoutubeEmbed(block)}" allowfullscreen></iframe>`;
+      body.appendChild(div);
+    } else if (isUrl(block)) {
+      const div = document.createElement('div');
+      div.className = 'block-image';
+      div.innerHTML = `<img src="${toDriveUrl(block)}" alt="" loading="lazy">`;
+      body.appendChild(div);
+    } else {
+      const p = document.createElement('p');
+      p.className = 'block-text';
+      p.textContent = block;
+      body.appendChild(p);
+    }
+  });
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function isUrl(s) { return /^https?:\/\//i.test(s.trim()); }
+function isYoutube(s) { return /youtube\.com|youtu\.be/i.test(s); }
+function toYoutubeEmbed(url) {
+  const m = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : url;
+}
+function toDriveUrl(url) {
+  const m = url.match(/[?&]id=([^&]+)/);
+  if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+  const m2 = url.match(/\/d\/([^/]+)/);
+  return m2 ? 'https://lh3.googleusercontent.com/d/' + m2[1] : url;
+}
+</script>
+</body>
+</html>

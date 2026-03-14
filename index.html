@@ -292,6 +292,7 @@ function render(){
   const grid=document.getElementById('grid'),noRes=document.getElementById('noResults');
   if(filtered.length===0){grid.style.display='none';noRes.style.display='block';}
   else{noRes.style.display='none';grid.style.display='grid';grid.innerHTML='';filtered.forEach(item=>grid.appendChild(makeCard(item)));}
+  setTimeout(()=>{document.querySelectorAll('.card-desc.clamped').forEach(el=>{if(el.scrollHeight<=el.clientHeight+2)el.classList.remove('clamped');});},50);
 }
 
 function makeCard(item){
@@ -321,6 +322,8 @@ if(isNew){
   body.querySelector('.card-desc')?.addEventListener('click',function(){
   this.classList.toggle('clamped');this.classList.toggle('expanded');
 });
+const desc=body.querySelector('.card-desc');
+if(desc && desc.scrollHeight <= desc.clientHeight+2) desc.classList.remove('clamped');
   card.appendChild(thumb);card.appendChild(body);return card;
 }
 

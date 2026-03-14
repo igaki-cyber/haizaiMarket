@@ -282,6 +282,11 @@ function render(){
     if(q&&!item.品目名.toLowerCase().includes(q)&&!(item.説明||'').toLowerCase().includes(q)) return false;
     return true;
   });
+  filtered.sort((a,b)=>{
+  const aNew=(a.説明||'').startsWith('新着');
+  const bNew=(b.説明||'').startsWith('新着');
+  return aNew===bNew?0:aNew?-1:1;
+});
   document.getElementById('resultCount').textContent=`${filtered.length} 件`;
   const grid=document.getElementById('grid'),noRes=document.getElementById('noResults');
   if(filtered.length===0){grid.style.display='none';noRes.style.display='block';}

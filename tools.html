@@ -326,6 +326,8 @@ function parseInline(text) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') // XSS対策
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')                 // **太字**
     .replace(/==(.+?)==/g,'<span style="color:var(--accent)">$1</span>') // ==色付き==
+    .replace(/~~(.+?)~~/g,'<s>$1</s>')
+    .replace(/__(.+?)__/g,'<u>$1</u>')
     .replace(/\[(.+?)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">$1</a>') // [テキスト](URL)
     .replace(/\n/g,'<br>');                                           // 改行
 }

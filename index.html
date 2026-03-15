@@ -322,7 +322,8 @@ if(isNew){
   const body=document.createElement('div');body.className='card-body';
   body.innerHTML=`${item.カテゴリ?`<div class="card-category">${item.カテゴリ}</div>`:''}<div class="card-name">${item.品目名}</div>${item.説明?`<div class="card-desc clamped">${item.説明}</div>`:''}<div class="card-footer"><span class="stock-badge ${cls}"><span class="stock-dot"></span>${label}</span>${isBorrow ? (() => {
   if(s > 0) return `<div class="btn-group"><button class="btn-want btn-borrow">借りたい</button></div>`;
-  if(item.返却予定日) return `<div class="btn-group"><button class="btn-want btn-reserve">予約する</button></div><div class="borrow-return">📅 ${item.返却予定日} 返却予定</div>`;
+  const retLabel = item.返却予定日 ? new Date(item.返却予定日).toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}) : '';
+if(item.返却予定日) return `<div class="btn-group"><button class="btn-want btn-reserve">予約する</button></div><div class="borrow-return"> ${retLabel} 返却予定</div>`;
   return `<div class="btn-group" style="opacity:0.4;pointer-events:none"><button class="btn-want btn-borrow">借りたい</button></div>`;
 })() : (() => {
   if(s > 0) return `<div class="btn-group"><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div>`;
@@ -376,6 +377,12 @@ async function submit(){
   const returnDate=document.getElementById('fReturnDate').value;
   if(!name){showErr('お名前を入力してください');return;}
   if(!contact){showErr('連絡先を入力してください');return;}
+  if((type==='借りたい'||type==='予約') && returnDate && date && date !== '未定'){
+  if(new Date(date) >= new Date(returnDate)){
+    showErr('受け取り希望日は返却予定日より前の日付にしてください');
+    return;
+  }
+}
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
   document.getElementById('resultMsg').className='result-msg';

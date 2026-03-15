@@ -76,7 +76,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 16px 80px;position:relative;z-i
 .card-desc.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .card-desc.expanded::after{content:' 閉じる';font-size:0.72rem;color:var(--brown-mid);font-weight:700;}
 .card-desc.clamped::after{content:' …もっと見る';font-size:0.72rem;color:var(--brown-mid);font-weight:700;}
-.card-footer{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:7px;}
+.card-footer{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;}
 .stock-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:20px;}
 .stock-ok{background:var(--green-pale);color:var(--green-dark);}
 .stock-low{background:var(--warn-pale);color:var(--warn);}
@@ -136,7 +136,7 @@ footer{background:var(--brown-deep);color:#e8d5bc;text-align:center;padding:22px
 @media(max-width:600px){#grid{grid-template-columns:repeat(2,1fr);gap:12px;}.card-body{padding:10px 11px 12px;}.card-name{font-size:0.9rem;}.card-desc{font-size:0.74rem;}.form-row{grid-template-columns:1fr;}.lb-nav{display:none;}}
 @media(max-width:340px){#grid{grid-template-columns:1fr;}}
   #offerModal input, #offerModal textarea { font-size:1rem; }
-.borrow-return{font-size:0.68rem;color:var(--brown-mid);margin-top:4px;text-align:right;}
+.borrow-return{font-size:0.68rem;color:var(--brown-mid);margin-top:4px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .btn-reserve{background:var(--green);flex:1;}
 .btn-reserve:hover{background:var(--green-dark);}
   
@@ -368,7 +368,10 @@ if(item.返却予定日) return `<div class="btn-group"><button class="btn-want 
   return `<div class="btn-group" style="opacity:0.4;pointer-events:none"><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div>`;
 })()}`; 
   body.querySelector('.btn-get')?.addEventListener('click',()=>openModal(item,'ほしい'));
-  body.querySelector('.btn-borrow')?.addEventListener('click',()=>openCal(item));
+  body.querySelector('.btn-borrow')?.addEventListener('click',()=>{
+  if(item.在庫数>0) openModal(item,'借りたい');
+  else openCal(item);
+});
   body.querySelector('.btn-reserve')?.addEventListener('click',()=>openCal(item));
   body.querySelector('.card-desc')?.addEventListener('click',function(){
   this.classList.toggle('clamped');this.classList.toggle('expanded');

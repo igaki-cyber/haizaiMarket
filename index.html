@@ -368,10 +368,7 @@ if(item.返却予定日) return `<div class="btn-group"><button class="btn-want 
   return `<div class="btn-group" style="opacity:0.4;pointer-events:none"><button class="btn-want btn-get">ほしい</button><button class="btn-want btn-borrow">借りたい</button></div>`;
 })()}`; 
   body.querySelector('.btn-get')?.addEventListener('click',()=>openModal(item,'ほしい'));
-  body.querySelector('.btn-borrow')?.addEventListener('click',()=>{
-  if(item.在庫数>0) openModal(item,'借りたい');
-  else openCal(item);
-});
+  body.querySelector('.btn-borrow')?.addEventListener('click',()=>openCal(item));
   body.querySelector('.btn-reserve')?.addEventListener('click',()=>openCal(item));
   body.querySelector('.card-desc')?.addEventListener('click',function(){
   this.classList.toggle('clamped');this.classList.toggle('expanded');
@@ -651,8 +648,9 @@ document.getElementById('calPrev').addEventListener('click', () => { calMonth--;
 document.getElementById('calNext').addEventListener('click', () => { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); });
 document.getElementById('calConfirm').addEventListener('click', () => {
   const fmt = d => `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  const type = calItem.在庫数 > 0 ? '借りたい' : '予約';
   closeCal();
-  openModal(calItem, '予約', fmt(calStart), fmt(calEnd));
+  openModal(calItem, type, fmt(calStart), fmt(calEnd));
 });
 }
 </script>

@@ -418,14 +418,15 @@ async function submit(){
   if(!name){showErr('お名前を入力してください');return;}
   if(!contact){showErr('連絡先を入力してください');return;}
   if((type==='借りたい'||type==='予約') && returnDate){
-  if(date && new Date(date) >= new Date(returnDate)){
-    showErr('受け取り希望日は返却予定日より前の日付にしてください');
-    return;
+    if(date && new Date(date) >= new Date(returnDate)){
+      showErr('受け取り希望日は返却予定日より前の日付にしてください');
+      return;
+    }
+    if(!date){
+      showErr('返却予定日を入力する場合は受け取り希望日も入力してください');
+      return;
+    }
   }
-  if(!date){
-    showErr('返却予定日を入力する場合は受け取り希望日も入力してください');
-    return;
-}
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
   document.getElementById('resultMsg').className='result-msg';

@@ -634,7 +634,7 @@ if(!oname){const m=document.getElementById('offerResultMsg');m.className='result
   const btn=document.getElementById('btnOfferSubmit');
   btn.disabled=true;btn.classList.add('loading');btn.querySelector('.btn-text').textContent='送信中…';
   try{
-    const p=new URLSearchParams({action:'offer',itemName:name,itemCategory:document.getElementById('oCategory').value.trim(),desc:document.getElementById('oDesc').value.trim(),free:document.getElementById('oFree').value.trim(),qty:document.getElementById('oQty').value,contact});
+    const p=new URLSearchParams({action:'offer',itemName:name,itemCategory:document.getElementById('oCategory').value.trim(),desc:document.getElementById('oDesc').value.trim(),free:document.getElementById('oFree').value.trim(),qty:document.getElementById('oQty').value,contact,name:oname});
     const res=await fetch(GAS_URL+'?'+p.toString(),{credentials:'omit',redirect:'follow'});
     const json=await res.json();
     btn.classList.remove('loading');
